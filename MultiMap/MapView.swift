@@ -30,13 +30,28 @@ struct MapView: View {
         searchText = ""
     }
     
+    func delete(_ location: Location) {
+        guard let index = locations.firstIndex(of: location) else { return }
+        locations.remove(at: index)
+    }
+    
     var body: some View {
         NavigationSplitView {
             List(locations, id: \.id, selection: $selectedLocations) { location in
                 Text(location.name)
                     .tag(location)
+                    .contextMenu {
+                        Button("Delete", role: .destructive) {
+                            delete(location)
+                        }
+                    }
             }
             .frame(minWidth: 200)
+            .onDeleteCommand {
+                for location in selectedLocations {
+                    delete(location)
+                }
+            }
         } detail: {
             VStack {
                 Map(coordinateRegion: $region, annotationItems: locations) { location in
